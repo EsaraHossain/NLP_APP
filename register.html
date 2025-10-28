@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NLP APP | Registration Page</title>
+</head>
+<body>
+
+    <!-- Flash messages block -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <h1>NLP App</h1>
+
+    <h3>Registration Here</h3>
+
+    <form method="POST" action="/register">
+        <label>First Name</label><br>
+        <input type="text" name="first_name" required><br>
+        <label>Email</label><br>
+        <input type="email" name="email" required><br>
+        <label>Password</label><br>
+        <input type="password" name="password" required><br><br>
+        <input type="submit" value="Register">
+    </form>
+
+    <p>Already a member? <a href="/">Login Here</a></p>
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NLP APP | Login Page</title>
+</head>
+<body>
+
+    <!-- Flash messages block -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <h1>NLP App</h1>
+
+    <h3>Login Here</h3>
+
+    <form method="POST" action="/login">
+        <label>Email</label><br>
+        <input type="email" name="email" required><br>
+        <label>Password</label><br>
+        <input type="password" name="password" required><br><br>
+        <input type="submit" value="Login">
+    </form>
+
+    <p>Not a member? <a href="/register">Register Here</a></p>
+
+</body>
+</html>

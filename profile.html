@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NLP APP | Profile</title>
+    <style>
+        .tab { display: inline-block; margin-right: 10px; padding: 8px; background: #eee; border-radius: 5px; text-decoration: none; color: black;}
+        .active { background: #ccc; }
+        .result-block { background: #f9f9f9; border: 1px solid #ddd; padding: 10px; margin-top: 10px; }
+        table { border-collapse: collapse; }
+        th, td { padding: 4px 8px; border: 1px solid #bbb; }
+    </style>
+</head>
+<body>
+    <h1>Welcome, {{ session['user'] }}!</h1>
+    <h2>Choose an AI Application:</h2>
+
+    <div>
+        <a href="{{ url_for('profile', tab='ner') }}" class="tab {% if active_tab == 'ner' or not active_tab %}active{% endif %}">NER</a>
+        <a href="{{ url_for('profile', tab='sentiment') }}" class="tab {% if active_tab == 'sentiment' %}active{% endif %}">Sentiment Analysis</a>
+        <a href="{{ url_for('profile', tab='summarize') }}" class="tab {% if active_tab == 'summarize' %}active{% endif %}">Summarization</a>
+    </div>
+
+    {% if active_tab == 'ner' or not active_tab %}
+        <h3>Named Entity Recognition (NER)</h3>
+        <form method="POST" action="{{ url_for('ner') }}">
+            <textarea name="ner_text" rows="4" cols="50" placeholder="Enter text for NER" required></textarea><br>
+            <input type="submit" value="Analyze NER">
+        </form>
+        {% if ner_result %}
+            <div class="result-block">
+                <h4>NER Result:</h4>
+                {% if ner_result.error %}
+                    <span style="color:red;">Error: {{ ner_result.error }}</span>
+                {% elif ner_result is iterable and ner_result|length > 0 and ner_result[0]['word'] is defined %}
+                    <table>
+                        <tr>
+                            <th>Entity</th>
+                            <th>Type</th>
+                            <th>Score</th>
+                        </tr>
+                        {% for ent in ner_result %}
+                        <tr>
+                            <td>{{ ent.word.replace('##', '') }}</td>
+                            <td>{{ ent.entity_group }}</td>
+                            <td>{{ "%.2f"|format(ent.score) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <pre>{{ ner_result | tojson(indent=2) }}</pre>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% elif active_tab == 'sentiment' %}
+        <h3>Sentiment Analysis</h3>
+        <form method="POST" action="{{ url_for('sentiment') }}">
+            <textarea name="sentiment_text" rows="4" cols="50" placeholder="Enter text for Sentiment Analysis" required></textarea><br>
+            <input type="submit" value="Analyze Sentiment">
+        </form>
+        {% if sentiment_result %}
+            <div class="result-block">
+                <h4>Sentiment Result:</h4>
+                {% if sentiment_result.error %}
+                    <span style="color:red;">Error: {{ sentiment_result.error }}</span>
+                {% else %}
+                    {% set label_map = {'1 star': 'Negative', '2 stars': 'Negative', '3 stars': 'Neutral', '4 stars': 'Positive', '5 stars': 'Positive'} %}
+                    {% set sorted_items = sentiment_result[0]|sort(attribute='score', reverse=True) %}
+                    {% set best = sorted_items[0] %}
+                    <b>Sentiment:</b> {{ label_map[best.label] }}<br>
+                    <b>Score:</b> {{ "%.2f"|format(best.score) }}
+                {% endif %}
+            </div>
+        {% endif %}
+    {% elif active_tab == 'summarize' %}
+        <h3>Text Summarization</h3>
+        <form method="POST" action="{{ url_for('summarize') }}">
+            <textarea name="summarize_text" rows="4" cols="50" placeholder="Enter text to Summarize" required></textarea><br>
+            <input type="submit" value="Summarize Text">
+        </form>
+        {% if summarize_result %}
+            <div class="result-block">
+                <h4>Summary:</h4>
+                {% if summarize_result.error %}
+                    <span style="color:red;">Error: {{ summarize_result.error }}</span>
+                {% elif summarize_result[0]['summary_text'] is defined %}
+                    {{ summarize_result[0]['summary_text'] }}
+                {% else %}
+                    <pre>{{ summarize_result | tojson(indent=2) }}</pre>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <p><a href="{{ url_for('logout') }}">Logout</a></p>
+</body>
+</html>
